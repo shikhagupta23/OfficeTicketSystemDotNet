@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OfficeTicketSystemBackend.Controllers
 {
@@ -84,6 +85,7 @@ namespace OfficeTicketSystemBackend.Controllers
 		}
 
 		[HttpPost("login")]
+		[AllowAnonymous]
 		public async Task<IActionResult> Login(LoginDto dto)
 		{
 			var response = new ApiResponse<LoginResponseDto>();
