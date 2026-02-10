@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficeTicketSystemBackend", "OfficeTicketSystemBackend.csproj", "{E8115F43-8EDD-414D-A598-1597CE284D97}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "..\DAL\DAL.csproj", "{3A43E112-CE87-463D-8621-E2E2EC75669D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "..\BLL\BLL.csproj", "{25365070-9CC5-40B9-9F18-F22495F8C08B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "..\Entities\Entities.csproj", "{126AEED6-6812-4528-8F71-CB0691FC319E}"
 EndProject
@@ -21,14 +17,6 @@ Global
 		{E8115F43-8EDD-414D-A598-1597CE284D97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8115F43-8EDD-414D-A598-1597CE284D97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8115F43-8EDD-414D-A598-1597CE284D97}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A43E112-CE87-463D-8621-E2E2EC75669D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A43E112-CE87-463D-8621-E2E2EC75669D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A43E112-CE87-463D-8621-E2E2EC75669D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A43E112-CE87-463D-8621-E2E2EC75669D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{25365070-9CC5-40B9-9F18-F22495F8C08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25365070-9CC5-40B9-9F18-F22495F8C08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25365070-9CC5-40B9-9F18-F22495F8C08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25365070-9CC5-40B9-9F18-F22495F8C08B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{126AEED6-6812-4528-8F71-CB0691FC319E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{126AEED6-6812-4528-8F71-CB0691FC319E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{126AEED6-6812-4528-8F71-CB0691FC319E}.Release|Any CPU.ActiveCfg = Release|Any CPU
