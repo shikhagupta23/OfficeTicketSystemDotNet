@@ -7,16 +7,23 @@ namespace DAL.Seed
 	{
 		public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
 		{
-			var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-			string[] roles = { "SuperAdmin", "Admin", "Employee" };
-
-			foreach (var role in roles)
+			try
 			{
-				if (!await roleManager.RoleExistsAsync(role))
+				var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+				string[] roles = { "SuperAdmin", "Admin", "Employee" };
+
+				foreach (var role in roles)
 				{
-					await roleManager.CreateAsync(new IdentityRole(role));
+					if (!await roleManager.RoleExistsAsync(role))
+					{
+						await roleManager.CreateAsync(new IdentityRole(role));
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Role seeding failed: " + ex.Message);
 			}
 		}
 	}
