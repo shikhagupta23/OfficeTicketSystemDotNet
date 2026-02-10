@@ -14,8 +14,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+	options.UseSqlite("Data Source=/app/data/OfficeTicket.db");
+});
+
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 	.AddEntityFrameworkStores<ApplicationDbContext>()
@@ -92,16 +98,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+// Create DB folder
+Directory.CreateDirectory("/app/data");
 
+//  Apply migrations + seed roles
 using (var scope = app.Services.CreateScope())
 {
-	var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-
-	if (env.IsDevelopment())
-	{
-		await IdentitySeeder.SeedRolesAsync(scope.ServiceProvider);
-	}
+	var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+	await db.Database.MigrateAsync();
+	await IdentitySeeder.SeedRolesAsync(scope.ServiceProvider);
 }
+
+//using (var scope = app.Services.CreateScope())
+//{
+//	var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+//	if (env.IsDevelopment())
+//	{
+//		await IdentitySeeder.SeedRolesAsync(scope.ServiceProvider);
+//	}
+//}
 
 
 // Configure the HTTP request pipeline.
