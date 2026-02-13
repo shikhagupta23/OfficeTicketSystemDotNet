@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-	//
+	
 	public class TicketService : ITicketService
 	{
 		private readonly IUnitOfWork _unitOfWork;
