@@ -15,6 +15,9 @@ namespace Entities.DTO
 		public TicketStatus Status { get; set; }
 		public TicketPriority Priority { get; set; }
 		public DateTime CreatedDate { get; set; }
+		public string CreatedByName { get; set; } = string.Empty;
+		public string AssignedToName { get; set; } = string.Empty;
+
 	}
 
 }

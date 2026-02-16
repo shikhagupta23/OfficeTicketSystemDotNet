@@ -5,6 +5,8 @@ using Entities.Common;
 using Entities.DTO;
 using Entities.Enum;
 using Entities.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -18,10 +20,13 @@ namespace BLL.Services
 	public class TicketService : ITicketService
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IEmailService _emailService;
 
-		public TicketService(IUnitOfWork unitOfWork)
+
+		public TicketService(IUnitOfWork unitOfWork, IEmailService emailService)
 		{
 			_unitOfWork = unitOfWork;
+			_emailService = emailService;
 		}
 
 		public async Task RaiseTicket(CreateTicketDto dto, string userId)
@@ -38,29 +43,56 @@ namespace BLL.Services
 
 			await _unitOfWork.Tickets.AddAsync(ticket);
 			await _unitOfWork.CompleteAsync();
+
+			try
+			{
+				var superAdminRoleId = _unitOfWork.Users.GetRolesQueryable()
+					.Where(r => r.Name == "SuperAdmin")
+					.Select(r => r.Id)
+					.FirstOrDefault();
+
+				if (!string.IsNullOrEmpty(superAdminRoleId))
+				{
+					var superAdmins = (from ur in _unitOfWork.Users.GetUserRolesQueryable()
+									   join u in _unitOfWork.Users.GetUsersQueryable()
+									   on ur.UserId equals u.Id
+									   where ur.RoleId == superAdminRoleId
+									   select u.Email).ToList();
+
+					foreach (var email in superAdmins)
+					{
+						string body = $@"
+                    <h3>New Ticket Raised</h3>
+                    <p><b>Title:</b> {ticket.Title}</p>
+                    <p><b>Description:</b> {ticket.Description}</p>
+                    <p><b>Priority:</b> {ticket.Priority}</p>
+                ";
+
+						await _emailService.SendEmailAsync(email, "New Ticket Raised", body);
+					}
+				}
+			}
+			catch { }
 		}
 
 		public async Task<PagedResponse<TicketResponseDto>> GetMyTicketsAsync(
 			string userId, string role, int page, int pageSize, string? search)
 		{
-			IQueryable<Ticket> query;
+			var tickets = _unitOfWork.Tickets.GetTicketsQueryable(search);
+			var users = _unitOfWork.Users.GetUsersQueryable();
 
+			// Apply role filter
 			if (role.Equals("Employee", StringComparison.OrdinalIgnoreCase))
 			{
-				query = _unitOfWork.Tickets.GetTicketsQueryable(search)
-					.Where(t => t.CreatedBy == userId);
+				tickets = tickets.Where(t => t.CreatedBy == userId);
 			}
 			else if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
 			{
-				query = _unitOfWork.Tickets.GetTicketsQueryable(search)
-					.Where(t => t.AssignedTo == Guid.Parse(userId));
-			}
-			else
-			{
-				query = _unitOfWork.Tickets.GetTicketsQueryable(search);
+				var adminGuid = Guid.Parse(userId);
+				tickets = tickets.Where(t => t.AssignedTo == adminGuid);
 			}
 
-			var result = query
+			var result = tickets
 				.OrderByDescending(t => t.CreatedAt)
 				.Select(t => new TicketResponseDto
 				{
@@ -69,13 +101,23 @@ namespace BLL.Services
 					Description = t.Description,
 					Status = t.Status,
 					Priority = t.Priority,
-					CreatedDate = t.CreatedAt
+					CreatedDate = t.CreatedAt,
+
+					CreatedByName = users
+						.Where(u => u.Id == t.CreatedBy)
+						.Select(u => u.FirstName + " " + u.LastName)
+						.FirstOrDefault(),
+
+					AssignedToName = users
+						.Where(u => u.Id == t.AssignedTo.ToString())
+						.Select(u => u.FirstName + " " + u.LastName)
+						.FirstOrDefault()
 				});
 
 			return await result.ToPagedResultAsync(page, pageSize);
 		}
 
-		public async Task<PagedResponse<TicketResponseDto>> GetAllTicketsAsync(int page = 1, int pageSize = 10, string? search = null)
+		public async Task<PagedResponse<TicketResponseDto>> GetTicketsHistoryAsync(int page = 1, int pageSize = 10, string? search = null)
 		{
 			var query = _unitOfWork.Tickets
 				.GetTicketsQueryable(search)
@@ -110,6 +152,27 @@ namespace BLL.Services
 			_unitOfWork.Tickets.Update(ticket); 
 			await _unitOfWork.CompleteAsync();
 
+			try
+			{
+				var admin = await _unitOfWork.Users.GetUsersQueryable()
+					.Where(u => u.Id == dto.AdminId)
+					.Select(u => u.Email)
+					.FirstOrDefaultAsync();
+
+				if (!string.IsNullOrEmpty(admin))
+				{
+					string body = $@"
+                <h3>Ticket Assigned To You</h3>
+                <p><b>Title:</b> {ticket.Title}</p>
+                <p><b>Description:</b> {ticket.Description}</p>
+            ";
+
+					await _emailService.SendEmailAsync(admin, "Ticket Assigned", body);
+				}
+			}
+			catch { }
+
+
 			return new ApiResponse { IsSuccess = true, Message = "Ticket assigned successfully" };
 		}
 
@@ -142,10 +205,45 @@ namespace BLL.Services
 
 			ticket.Status = TicketStatus.Resolved;
 			await _unitOfWork.CompleteAsync();
+
+			try
+			{
+				// Employee Email
+				var employeeEmail = _unitOfWork.Users.GetUsersQueryable()
+					.Where(u => u.Id == ticket.CreatedBy)
+					.Select(u => u.Email)
+					.FirstOrDefault();
+
+				string body = $@"
+            <h3>Ticket Resolved</h3>
+            <p><b>Title:</b> {ticket.Title}</p>
+            <p>Your issue has been resolved.</p>
+        ";
+
+				if (!string.IsNullOrEmpty(employeeEmail))
+					await _emailService.SendEmailAsync(employeeEmail, "Ticket Resolved", body);
+
+				// SuperAdmin Email
+				var superAdminRoleId = _unitOfWork.Users.GetRolesQueryable()
+					.Where(r => r.Name == "SuperAdmin")
+					.Select(r => r.Id)
+					.FirstOrDefault();
+
+				var superAdmins = (from ur in _unitOfWork.Users.GetUserRolesQueryable()
+								   join u in _unitOfWork.Users.GetUsersQueryable()
+								   on ur.UserId equals u.Id
+								   where ur.RoleId == superAdminRoleId
+								   select u.Email).ToList();
+
+				foreach (var email in superAdmins)
+				{
+					await _emailService.SendEmailAsync(email, "Ticket Resolved", body);
+				}
+			}
+			catch { }
+
 			return true;
 		}
-
-
 	}
 
 }

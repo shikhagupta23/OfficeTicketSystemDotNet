@@ -56,10 +56,10 @@ namespace OfficeTicketSystemBackend.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet("GetAll")]
-		public async Task<IActionResult> GetAllTickets(int page = 1, int pageSize = 10, string? search = null)
+		[HttpGet("GetTicketHistory")]
+		public async Task<IActionResult> GetTicketsHistory(int page = 1, int pageSize = 10, string? search = null)
 		{
-			var result = await _ticketService.GetAllTicketsAsync(page, pageSize, search);
+			var result = await _ticketService.GetTicketsHistoryAsync(page, pageSize, search);
 
 			return Ok(result);
 		}

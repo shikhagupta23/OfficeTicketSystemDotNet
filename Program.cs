@@ -9,26 +9,25 @@ using DAL.Seed;
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.UnitOfWork;
+using OfficeTicketSystemBackend.Entities.DTO;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-if (builder.Environment.IsDevelopment())
-{
-	builder.Services.AddDbContext<ApplicationDbContext>(options =>
-		options.UseSqlite("Data Source=OfficeTicket.db"));
-}
-else
-{
-	builder.Services.AddDbContext<ApplicationDbContext>(options =>
-		options.UseSqlite("Data Source=/app/data/OfficeTicket.db"));
-}
-
-
+//if (builder.Environment.IsDevelopment())
+//{
+//	builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//		options.UseSqlite("Data Source=OfficeTicket.db"));
+//}
+//else
+//{
+//	builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//		options.UseSqlite("Data Source=/app/data/OfficeTicket.db"));
+//}
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 	.AddEntityFrameworkStores<ApplicationDbContext>()
@@ -36,6 +35,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -92,21 +92,24 @@ builder.Services.AddCors(options =>
 		policy =>
 		{
 			policy
-				.WithOrigins("https://office-ticket-system-angular-ge3g.vercel.app")
+				//.WithOrigins("https://office-ticket-system-angular-ge3g.vercel.app")
+				.WithOrigins("http://localhost:4200")
 				.AllowAnyHeader()
 				.AllowAnyMethod();
 		});
 });
 
-
+builder.Services.Configure<EmailSettingsDto>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+//For SQLLite
 // Create DB folder
-Directory.CreateDirectory("/app/data");
+//Directory.CreateDirectory("/app/data");
 
 //  Apply migrations + seed roles
 using (var scope = app.Services.CreateScope())
@@ -116,26 +119,17 @@ using (var scope = app.Services.CreateScope())
 	await IdentitySeeder.SeedRolesAsync(scope.ServiceProvider);
 }
 
-//using (var scope = app.Services.CreateScope())
-//{
-//	var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-
-//	if (env.IsDevelopment())
-//	{
-//		await IdentitySeeder.SeedRolesAsync(scope.ServiceProvider);
-//	}
-//}
-
-
+//MySql
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
+}
 
-app.UseSwagger();
-app.UseSwaggerUI();
+// SQLLite
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAngular");

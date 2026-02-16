@@ -25,7 +25,9 @@ namespace BLL.Extensions
 				PageNumber = page,
 				PageSize = pageSize,
 				TotalCount = totalRecords,
-				DataList = data
+				DataList = data,
+				IsSuccess = true
+				
 			};
 		}
 	}

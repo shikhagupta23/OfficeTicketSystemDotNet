@@ -1,5 +1,6 @@
 ﻿using Entities.Base;
 using Entities.Enum;
+using Entities.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +18,6 @@ namespace Entities.Models
 		public TicketCategory Category { get; set; } = TicketCategory.IT;
 		public Guid? AssignedTo { get; set; } = Guid.Empty;
 		public string CreatedBy { get; set; } = string.Empty;
+
 	}
 }

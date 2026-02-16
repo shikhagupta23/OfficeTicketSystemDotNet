@@ -2,9 +2,11 @@
 using Entities.DTO;
 using Entities.Enum;
 using Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeTicketSystemBackend.Controllers.Base;
 
+[Authorize]
 [Route("api/dashboard")]
 public class DashboardAPIController : BaseApiController
 {

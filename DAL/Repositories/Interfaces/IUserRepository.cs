@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Entities.DTO;
 using System.Linq;
+using Entities.Identity;
 
 namespace DAL.Repositories.Interfaces
 {
@@ -8,6 +9,6 @@ namespace DAL.Repositories.Interfaces
 	{
 		IQueryable<IdentityRole> GetRolesQueryable();
 		IQueryable<IdentityUserRole<string>> GetUserRolesQueryable();
-		IQueryable<IdentityUser> GetUsersQueryable();
+		IQueryable<ApplicationUser> GetUsersQueryable();
 	}
 }
