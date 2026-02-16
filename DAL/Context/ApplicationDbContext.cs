@@ -18,13 +18,13 @@ namespace DAL.Context
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);
-			//builder.Entity<IdentityRole>()
-			//	.Property(r => r.ConcurrencyStamp)
-			//	.HasColumnType("TEXT");
+			builder.Entity<IdentityRole>()
+				.Property(r => r.ConcurrencyStamp)
+				.HasColumnType("TEXT");
 
-			//builder.Entity<ApplicationUser>()
-			//	.Property(u => u.ConcurrencyStamp)
-			//	.HasColumnType("TEXT");
+			builder.Entity<ApplicationUser>()
+				.Property(u => u.ConcurrencyStamp)
+				.HasColumnType("TEXT");
 
 		}
 	}
