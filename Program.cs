@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
 		policy =>
 		{
 			policy
-				.WithOrigins("https://office-ticket-system-angular-ge3g-rlaz2tglo.vercel.app")
+				.WithOrigins("https://office-ticket-system-angular-ge3g.vercel.app")
 				//.WithOrigins("http://localhost:4200")
 				.AllowAnyHeader()
 				.AllowAnyMethod();
